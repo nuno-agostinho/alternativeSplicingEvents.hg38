@@ -28,7 +28,7 @@ details).
 }
 \details{
 The annotation files from MISO and VAST-TOLLS were retrieved from the links
-below. SUPPA and rMATS identify alternative splicing events and generate
+in "Sources". SUPPA and rMATS identify alternative splicing events and generate
 annotation files from a transcripts annotation file in GTF format.
 
 The transcripts annotation file used was retrieved from UCSC Table Browser by
@@ -39,6 +39,15 @@ Unfortunately, this file has a bug where the "transcript_id" is the same as the
 information was retrieved from UCSC Table Browser in TXT format and the
 following R script was run:
 \url{https://gist.github.com/nuno-agostinho/24a5e4926b6e08e988c0}
+
+After obtaining the resulting annotation files, all files were parsed to obtain
+the identifier, chromosome, strand and coordinates of each splicing event per
+event type. Then, a full outer join was performed on the annotation of the
+different programs per event type using \code{dplyr::full_join}.
+
+Note that before the outer join, some rMATS coordinates should increment one
+unit to be compared to the annotation of other files and the "chr" prefix
+present in the chromosome field of some annotation files was also removed.
 }
 \source{
     \itemize{
