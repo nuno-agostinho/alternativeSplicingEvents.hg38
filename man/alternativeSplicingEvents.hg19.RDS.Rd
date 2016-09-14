@@ -5,8 +5,11 @@
 Alternative splicing event annotation for Human (hg19)
 }
 \description{
-List of data frames containing alternative splicing events per event type. The
-following event types are available:
+List of data frames containing alternative splicing events per event type. Each
+splicing event is characterised by its chromosome, strand, splice junctions
+coordinates relevant to the type of event and associated gene.
+
+The following event types are available:
 \itemize{
     \item{Skipped Exon (SE)}
     \item{Mutually Exclusive Exon (MXE)}
