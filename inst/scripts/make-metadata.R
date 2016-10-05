@@ -1,4 +1,4 @@
-metadata <- AnnotationHubMetadata(
+metadata <- data.frame(
     Title="Alternative Splicing Annotation for Homo sapiens (Human)",
     Description=paste("List of data frames containing alternative splicing",
                       "events per event type. Each splicing event is",
@@ -11,10 +11,10 @@ metadata <- AnnotationHubMetadata(
     Maintainer="Nuno Agostinho <nunodanielagostinho@gmail.com>",
     RDataClass="list",
     DispatchClass="list",
-    SourceUrl=c("https://miso.readthedocs.io/en/fastmiso/annotation.html",
-                "http://rnaseq-mats.sourceforge.net/user_guide.htm",
-                "https://bitbucket.org/regulatorygenomicsupf/suppa",
-                "http://vastdb.crg.eu/libs/"),
+    SourceUrl=paste("https://miso.readthedocs.io/en/fastmiso/annotation.html",
+                    "http://rnaseq-mats.sourceforge.net/user_guide.htm",
+                    "https://bitbucket.org/regulatorygenomicsupf/suppa",
+                    "http://vastdb.crg.eu/libs/", sep=", "),
     SourceType="tab",
     SourceVersion=NA_character_,
     DataProvider=NA_character_,
@@ -22,20 +22,9 @@ metadata <- AnnotationHubMetadata(
     Coordinate_1_based=TRUE,
     RDataDateAdded=as.POSIXct(Sys.time()),
     Recipe=NA_character_,
-    Tags=c("Human", "Alternative", "Splicing", "Events", "Annotation", "hg19")
+    ResourceName="alternativeSplicingEvents.hg19.rda",
+    Tags=paste("Human", "Alternative", "Splicing", "Events", "Annotation",
+               "hg19", sep=", ")
 )
 
-# metadataCsv <- data.frame(Title=metadata@Title,
-#                           Description=metadata@Description,
-#                           biocVersion=metadata@BiocVersion,
-#                           Genome=metadata@Genome,
-#                           SourceType=metadata@SourceType,
-#                           SourceUrl=paste(metadata@SourceUrl, collapse=", "),
-#                           SourceVersion=metadata@SourceVersion,
-#                           Species=metadata@Species,
-#                           TaxonomyId=metadata@TaxonomyId,
-#                           Coordinate_1_based=metadata@Coordinate_1_based,
-#                           DataProvider=metadata@DataProvider,
-#                           Maintainer=metadata@Maintainer,
-#                           RDataClass=metadata@RDataClass,
-#                           Tags=paste(metadata@Tags, collapse=", "))
+write.csv(metadata, file="inst/extdata/metadata.csv", row.names=FALSE)

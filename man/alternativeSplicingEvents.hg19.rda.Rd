@@ -1,5 +1,5 @@
-\name{data/alternativeSplicingEvents.hg19.rda}
-\alias{data/alternativeSplicingEvents.hg19.rda}
+\name{alternativeSplicingEvents.hg19.rda}
+\alias{alternativeSplicingEvents.hg19.rda}
 \docType{data}
 \title{
 Alternative splicing event annotation for Human (hg19)
@@ -96,9 +96,9 @@ For more details, check the \code{make-data.R} file.
 }
 \examples{
 library(AnnotationHub)
-eh <- AnnotationHub()
+hub <- AnnotationHub()
 
 ## Load the alternative splicing events for Human (hg19)
-events <- query(eh, "alternativeSplicingEvents.hg19")[[1]]
+events <- query(hub, "alternativeSplicingEvents.hg19")[[1]]
 }
 \keyword{datasets}
