@@ -8,3 +8,7 @@ Description: List of data frames containing alternative splicing events per even
 License: MIT + file LICENSE
 LazyData: TRUE
 RoxygenNote: 5.0.1
+Imports:
+    AnnotationHub
+URL: https://github.com/nuno-agostinho/alternativeSplicingEvents.hg19
+BugReports: https://github.com/nuno-agostinho/alternativeSplicingEvents.hg19/issues
