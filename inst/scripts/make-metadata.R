@@ -23,8 +23,8 @@ metadata <- data.frame(
     RDataDateAdded=as.POSIXct(Sys.time()),
     Recipe=NA_character_,
     ResourceName="alternativeSplicingEvents.hg19.rda",
-    Tags=paste("Human", "Alternative", "Splicing", "Events", "Annotation",
-               "hg19", sep=", ")
+    Tags=I(list(c("Human", "Alternative", "Splicing", "Events", "Annotation", "hg19")))
 )
 
-write.csv(metadata, file="inst/extdata/metadata.csv", row.names=FALSE)
+write.table(metadata, file="inst/extdata/metadata.tsv", row.names=FALSE,
+            sep="\t")
