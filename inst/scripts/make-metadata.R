@@ -10,21 +10,17 @@ metadata <- data.frame(
     Genome="hg19",
     Maintainer="Nuno Agostinho <nunodanielagostinho@gmail.com>",
     RDataClass="list",
-    DispatchClass="list",
+    DispatchClass="Rda",
     SourceUrl=paste("https://miso.readthedocs.io/en/fastmiso/annotation.html",
                     "http://rnaseq-mats.sourceforge.net/user_guide.htm",
                     "https://bitbucket.org/regulatorygenomicsupf/suppa",
                     "http://vastdb.crg.eu/libs/", sep=", "),
-    SourceType="tab",
+    SourceType="GFF",
     SourceVersion=NA_character_,
-    DataProvider=NA_character_,
+    DataProvider="MISO, VAST-TOOLS, UCSC",
     BiocVersion=package_version("3.4"),
     Coordinate_1_based=TRUE,
-    RDataDateAdded=as.POSIXct(Sys.time()),
-    Recipe=NA_character_,
     ResourceName="alternativeSplicingEvents.hg19.rda",
-    Tags=I(list(c("Human", "Alternative", "Splicing", "Events", "Annotation", "hg19")))
-)
+    Tags=(c("Human, Alternative, Splicing, Events, Annotation, hg19")))
 
-write.table(metadata, file="inst/extdata/metadata.tsv", row.names=FALSE,
-            sep="\t")
+write.csv(metadata, file="inst/extdata/metadata.csv", row.names=FALSE)

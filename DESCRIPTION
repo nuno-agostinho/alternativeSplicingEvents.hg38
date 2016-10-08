@@ -1,7 +1,7 @@
 Package: alternativeSplicingEvents.hg19
 Type: Annotation package
 Title: Alternative splicing event annotation for Human (hg19)
-Version: 0.99.1
+Version: 1.0.0
 Author: Nuno Agostinho
 Maintainer: Nuno Agostinho <nunodanielagostinho@gmail.com>
 Description: Data frame containing alternative splicing events. The splicing events were compiled from the annotation files used by the alternative splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS.
