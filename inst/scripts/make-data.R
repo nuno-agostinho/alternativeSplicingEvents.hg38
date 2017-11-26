@@ -1,3 +1,6 @@
+require(plyr)
+require(GenomicRanges)
+require(S4Vectors)
 source(system.file("scripts/events.R",
                    package="alternativeSplicingEvents.hg19"))
 
@@ -11,21 +14,20 @@ source(system.file("scripts/events.R",
 ## (VAST-TOOLS) with the alternative splicing events for each event type.
 
 ## SUPPA and rMATS identify alternative splicing events and generate annotation
-## files from a transcripts annotation file in GTF format. The annotation file
+## files from a transcript annotation file in GTF format. The annotation file
 ## was retrieved from UCSC Table Browser (https://genome.ucsc.edu/cgi-bin/hgTables)
 ## by selecting the GRCh37/hg19 assembly, "Genes and Gene Predictions" group,
 ## "UCSC Genes" track, "knownGene" table for all genome in the GTF format.
-## Unfortunately, this file has a bug where the "transcript_id" is the same as
-## the "gene_id". To fix the transcripts' identifier from the GTF file, the
-## exact same information was retrieved from UCSC Table Browser in TXT format
-## and the following steps were taken:
+## Misleadingly, the "transcript_id" column contains gene identifiers. As such,
+## the proper transcript identifiers were retrieved from UCSC Table Browser in
+## TXT format and and the following steps were taken:
 
 annotationGTF <- "ensembl_hg19.gtf"
 annotationTXT <- "ensGene.txt"
 
 # Create a match table between Gene ID and Transcript ID using the Ensembl
 # annotation from UCSC (TXT file)
-library(data.table) # faster to load data frames
+require(data.table) # faster to load data frames
 txt <- fread(annotationTXT, data.table = FALSE)
 idTable <- txt$V13          # Save gene ID
 names(idTable) <- txt$V2    # Save transcript ID
@@ -49,20 +51,22 @@ write.table(gtf, file = outputFilename, quote = FALSE, col.names = FALSE,
 ## The resulting transcripts annotation file is used to generate the alternative
 ## splicing events with SUPPA (by running the command generateEvents for all
 ## event types) and rMATS (by running the main rMATS script with any two BAM or
-## FASTQ samples). Just as with the other programs, the resulting alternative
-## splicing events are divided in files by event type (IOE files for SUPPA and
-## TXT for rMATS -- including novel events in the case of rMATS).
+## FASTQ samples; events generated are independent of the sample files used).
+## The resulting alternative splicing events are split by files based on their
+## event type (IOE files for SUPPA and TXT for rMATS -- including novel events
+## in the case of rMATS).
 
 ## After obtaining the resulting annotation files, all files are parsed to
 ## obtain the identifier, chromosome, strand and coordinates of each splicing
-## event per event type. Some rMATS coordinates increment one unit to be
-## compared to the annotation of other programs.
-events <- list(
-    miso  = getEventsFromMisoAnnotation(folder = "miso_annotation"),
-    mats  = getEventsFromMatsAnnotation(folder = "mats_output"),
-    suppa = getEventsFromSuppaAnnotation(folder = "suppa_output"),
-    vast  = getEventsFromVastToolsAnnotation(folder = "vast_annotation")
-)
+## event per event type. Some rMATS coordinates are incremented by one to be
+## comparable to events from other annotations.
+miso  <- getEventsFromMisoAnnotation(folder = "miso_annotation")
+mats  <- getEventsFromMatsAnnotation(folder = "mats_annotation")
+suppa <- getEventsFromSuppaAnnotation(folder = "suppa_annotation")
+
+## Note the folder that matters in case of VAST-TOOLS is the TEMPLATES folder
+vast  <- getEventsFromVastToolsAnnotation(folder = "Hsa/TEMPLATES")
+events <- list(miso, mats, suppa, vast)
 
 ## The "chr" prefix from the chromosome field is removed
 for (each in seq_along(events)) {
@@ -71,7 +75,7 @@ for (each in seq_along(events)) {
 
 ## Organise splicing events by event type and then by program in a list of list
 ## of dataframes
-events <- plyr::rbind.fill(events)
+events <- rbind.fill(events)
 events <- dlply(events, .(Event.type))
 events <- lapply(events, dlply, .(Program))
 
@@ -136,7 +140,7 @@ types <- c(SE="Skipped exon", MXE="Mutually exclusive exon",
 for (type in names(types)) {
     events[[type]] <- cbind("Event type"=types[[type]], events[[type]])
 }
-events <- plyr::rbind.fill(events)
+events <- rbind.fill(events)
 
 coords <- c("C1.start"="Constitutive exon 1 start",
             "C1.end"="Constitutive exon 1 end",
@@ -160,51 +164,113 @@ ord <- order(events$`Event type`, events$Chromosome,
 events <- events[ord, c("Event type", "Chromosome", "Strand", "Gene",
                         coords, eventId)]
 
-## Identify the gene associated with each splicing event by loading a file with
-## coordinates of transcripts and the respective gene symbol, as retrieved from
-## the UCSC table browser by selecting Human (hg19 assembly), "Gene and Gene
-## Predictions" group, "UCSC genes" track, "known genes" table for all genome.
-## In the output format, choose "selected fields from primary and related
-## tables" and name the output file "gene_coordinates.txt". After clicking on
-## "get output", choose fields "chrom", "strand", "txStart" and "txEnd". Also,
-## select the field "geneSymbol" from the kgXref table.
+## Identify the gene associated with each splicing event based on a file with
+## coordinates of transcripts and their respective gene symbol, as retrieved
+## from the UCSC table browser by selecting Human (hg19 assembly), "Gene and
+## Gene Predictions" group, "UCSC genes" track, "known genes" table for all
+## genome. In the output format, choose "selected fields from primary and
+## related tables" and name the output file "gene_coordinates.txt". After
+## clicking on "get output", choose fields "chrom", "strand", "txStart",
+## "txEnd", "exonStarts" and "exonEnds". Also, select the field "geneSymbol"
+## from the kgXref table.
 
-coords <- function(FUN, ...) unname(apply(events[ , 5:12], 1, FUN, ...))
-mini <- coords(min, na.rm=TRUE)
-maxi <- coords(max, na.rm=TRUE)
-df <- cbind(events[2:3], mini, maxi)
-names(df) <- c("chr", "strand", "start", "end")
-eventsGR <- GenomicRanges::makeGRangesFromDataFrame(df)
+getGRangesFromCoordinates <- function(filename, byExon=TRUE) {
+    gene_coordinates <- read.delim(filename, header=FALSE, comment.char="#")
+    names(gene_coordinates) <- c("chr", "strand", "txStart", "txEnd",
+                                 "exonStarts", "exonEnds", "gene")
+    gene_coordinates <- unique(gene_coordinates)
+    gene_coordinates$chr <- gsub("^chr", "", gene_coordinates$chr)
 
-gene_coordinates <- read.delim("gene_coordinates.txt", header=FALSE,
-                               comment.char="#")
-names(gene_coordinates) <- c("chr", "strand", "start", "end", "gene")
-gene_coordinates <- unique(gene_coordinates)
-gene_coordinates$chr <- gsub("^chr", "", gene_coordinates$chr)
-gene_pos <- GenomicRanges::makeGRangesFromDataFrame(gene_coordinates,
-                                                    keep.extra.columns = T)
+    if (byExon) {
+        start <- gene_coordinates[["exonStarts"]]
+        end   <- gene_coordinates[["exonEnds"]]
+    } else {
+        start <- gene_coordinates[["txStart"]]
+        end   <- gene_coordinates[["txEnd"]]
+    }
 
-# Overlap coordinates to find gene names
-overlaps <- GenomicRanges::findOverlaps(eventsGR, gene_pos)
-query <- as.character(gene_pos$gene[S4Vectors::subjectHits(overlaps)])
-names(query) <- S4Vectors::queryHits(overlaps)
+    start_split <- strsplit(as.character(start), ",")
+    end_split   <- strsplit(as.character(end), ",")
 
-# Remove duplicated gene names per alternative splicing event
-geneSymbol <- split(query, names(query))
-geneSymbol <- lapply(geneSymbol, unique)
+    reps     <- sapply(start_split, length)
+    chr_2    <- rep(gene_coordinates$chr, reps)
+    strand_2 <- rep(gene_coordinates$strand, reps)
+    gene_2   <- rep(gene_coordinates$gene, reps)
 
-# Label events with no genes as "Hypothetical"
-seq <- as.character(1:length(eventsGR))
-noGene <- !seq %in% names(geneSymbol)
-geneSymbol[seq[noGene]] <- "Hypothetical"
+    start_split <- as.numeric(unlist(start_split))
+    end_split   <- as.numeric(unlist(end_split))
+    coordinates <- data.frame("chr"=chr_2, "strand"=strand_2,
+                              "start"=start_split, "end"=end_split,
+                              "gene"=gene_2)
 
-# Sort by numeric value and add to events
-ind <- as.character(sort(as.integer(names(geneSymbol))))
-events$Gene <- geneSymbol[ind]
+    makeGRangesFromDataFrame(coordinates, keep.extra.columns=T)
+}
 
-# Filter events with more than 4 genes (probably annotation made by error)
-fewGenes <- vapply(events$Gene, length, numeric(1)) <= 4
-events <- events[fewGenes, ]
+assignGenesFromGRange <- function(events, pos) {
+    # Get event type-specifc coordinates of alternative exons for gene
+    # attribution
+    df <- cbind(events[2:3], start=NA, end=NA)
+    eventTypes <- events$`Event type`
+    for (type in unique(eventTypes)) {
+        print(type)
+        rows <- eventTypes == type
+
+        if (type %in% c("Skipped exon", "Mutually exclusive exon",
+                        "Alternative first exon", "Alternative last exon")) {
+            start <- events[rows, "Alternative exon 1 start"]
+            end   <- events[rows, "Alternative exon 1 end"]
+        } else if (type %in% "Alternative 3' splice site") {
+            start <- events[rows, "Alternative exon 1 start"]
+            end   <- events[rows, "Constitutive exon 2 start"]
+        } else if (type %in% "Alternative 5' splice site") {
+            start <- events[rows, "Alternative exon 1 end"]
+            end   <- events[rows, "Constitutive exon 1 end"]
+        } else if (type %in% c("Retained intron", "Tandem UTR")) {
+            start <- events[rows, "Constitutive exon 1 start"]
+            end   <- events[rows, "Constitutive exon 1 end"]
+        } else {
+            stop("Undefined event type:", type)
+        }
+
+        df[rows, "start"] <- ifelse(start < end, start, end)
+        df[rows, "end"]   <- ifelse(start < end, end, start)
+    }
+
+    names(df) <- c("chr", "strand", "start", "end")
+    eventsGR <- makeGRangesFromDataFrame(df)
+
+    # Overlap coordinates to find gene names
+    print("Looking for overlapping coordinates...")
+    overlaps <- findOverlaps(eventsGR, pos)
+    query <- as.character(pos$gene[subjectHits(overlaps)])
+    names(query) <- queryHits(overlaps)
+
+    # Remove duplicated gene names per alternative splicing event
+    geneSymbol <- split(query, names(query))
+    geneSymbol <- lapply(geneSymbol, unique)
+
+    # Label events with no genes as "Hypothetical"
+    seq <- as.character(1:length(eventsGR))
+    noGene <- !seq %in% names(geneSymbol)
+    geneSymbol[seq[noGene]] <- "Hypothetical"
+
+    # Sort by numeric value and add to events
+    ind <- as.character(sort(as.integer(names(geneSymbol))))
+    events$Gene <- geneSymbol[ind]
+
+    # Remove duplicate events
+    print("Removing duplicate events...")
+    return(unique(events))
+}
+
+# Get genes based on exon coordinates
+exon_pos <- getGRangesFromCoordinates("gene_coordinates.txt", byExon=TRUE)
+events   <- assignGenesFromGRange(events, exon_pos)
+
+# Get remaining genes based on transcript coordinates
+gene_pos <- getGRangesFromCoordinates("gene_coordinates.txt", byExon=FALSE)
+events[events$Gene == "Hypothetical", ] <- assignGenesFromGRange(
+    events[events$Gene == "Hypothetical", ], gene_pos)
 
 # Organise by event type and remove columns with NAs only
 events <- split(events[-1], events$`Event type`)

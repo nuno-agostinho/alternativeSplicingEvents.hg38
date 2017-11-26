@@ -69,7 +69,7 @@ getEventsFromMisoAnnotation <- function(
 
     cat("Parsing MISO annotation...", fill=TRUE)
     events <- lapply(annot, parseMisoEvent)
-    events <- rbind.fill(events)
+    events <- plyr::rbind.fill(events)
     return(events)
 }
 
@@ -87,7 +87,7 @@ getEventsFromSuppaAnnotation <- function(
     cat("Parsing SUPPA annotation...", fill=TRUE)
     eventsID <- lapply(annot, "[[", "event_id")
     events <- lapply(eventsID, parseSuppaEvent)
-    events <- rbind.fill(events)
+    events <- plyr::rbind.fill(events)
     return(events)
 }
 
@@ -109,7 +109,7 @@ getEventsFromMatsAnnotation <- function(
     events <- lapply(seq_along(annot), function(i)
         if (nrow(annot[[i]]) > 0)
             return(parseMatsEvent(annot[[i]], types[[i]])))
-    events <- rbind.fill(events)
+    events <- plyr::rbind.fill(events)
 
     # Sum 1 position to the start/end of MATS events (depending on the strand)
     matsNames <- names(events)
@@ -148,7 +148,7 @@ getEventsFromVastToolsAnnotation <- function(
                          if (nrow(a) > 0)
                              return(parseVastToolsEvent(a))
                      })
-    events <- rbind.fill(events)
+    events <- plyr::rbind.fill(events)
     events <- unique(events)
     return(events)
 }

@@ -56,7 +56,7 @@ getDataRows <- function(i, data, firstRow, lastRow) {
 #'                     package="psichomics")
 #' annotation <- read.delim(gff3, header=FALSE, comment.char="#")
 #' IDcolumn <- 9
-#' psichomics:::parseMisoEventID(eventID, annotation, IDcolumn)
+#' parseMisoEventID(eventID, annotation, IDcolumn)
 parseMisoEventID <- function(eventID, annotation, IDcolumn) {
     # Get first row from annotation matching a given splicing event ID
     index <- fmatch(paste0("ID=", eventID,
@@ -112,7 +112,7 @@ parseMisoEventID <- function(eventID, annotation, IDcolumn) {
 #'  chr1 SE exon 17915 18061  .  -  .
 #' ")
 #' validator <- c("gene", "mRNA", rep("exon", 3), "mRNA", rep("exon", 2))
-#' psichomics:::getValidEvents(event, validator)
+#' getValidEvents(event, validator)
 getValidEvents <- function(event, validator, areMultipleExonsValid = FALSE) {
     elem <- event[[3]]
 
@@ -189,7 +189,7 @@ getValidEvents <- function(event, validator, areMultipleExonsValid = FALSE) {
 #'   chr1 SE mRNA 16854 18061 . - .
 #'   chr1 SE exon 16854 17955 . - .
 #'   chr1 SE exon 17915 18061 . - .")
-#' psichomics:::parseMisoEvent(event)
+#' parseMisoEvent(event)
 parseMisoEvent <- function(event) {
     eventType <- as.character(event[1, 2])
     parseEvent <- switch(eventType,
@@ -282,7 +282,7 @@ parseMisoGeneric <- function(event, validator, eventType, coord, plusIndex,
 #'     "ID=ENSMUSG00000026150.chr1:82723803:82723911:+@chr1:82724642:82724813:",
 #'     "+@chr1:82725791:82726011:+.B;Parent=ENSMUSG00000026150.chr1:82723803:",
 #'     "82723911:+@chr1:82724642:82724813:+@chr1:82725791:82726011:+")
-#' psichomics:::parseMisoId(id)
+#' parseMisoId(id)
 parseMisoId <- function(id) {
     id <- as.character(id)
     semicolon <- gregexpr(";", id, fixed = TRUE)
@@ -303,7 +303,7 @@ parseMisoId <- function(id) {
 #'   chr1 SE mRNA 16854 18061 . - .
 #'   chr1 SE exon 16854 17955 . - .
 #'   chr1 SE exon 17915 18061 . - .")
-#' psichomics:::parseMisoSE(event)
+#' parseMisoSE(event)
 parseMisoSE <- function(event) {
     validator <- c("gene", "mRNA", rep("exon", 3), "mRNA", rep("exon", 2))
     coord <- c("C1.start", "C1.end",
@@ -330,7 +330,7 @@ parseMisoSE <- function(event) {
 #'  chr1 MXE exon 764383 764484 . + .
 #'  chr1 MXE exon 783034 783186 . + .
 #'  chr1 MXE exon 787307 788090 . + .")
-#' psichomics:::parseMisoMXE(event)
+#' parseMisoMXE(event)
 parseMisoMXE <- function(event) {
     validator <- c("gene", "mRNA", rep("exon", 3), "mRNA", rep("exon", 3))
     coord <- c("C1.start", "C1.end",
@@ -356,7 +356,7 @@ parseMisoMXE <- function(event) {
 #'  chr1 RI mRNA 17233 17742 . - .
 #'  chr1 RI exon 17233 17364 . - .
 #'  chr1 RI exon 17601 17742 . - .")
-#' psichomics:::parseMisoRI(event)
+#' parseMisoRI(event)
 parseMisoRI <- function(event, strand) {
     validator <- c("gene", "mRNA", "exon", "mRNA", rep("exon", 2))
     coord <- c("C1.start", "C1.end",
@@ -380,7 +380,7 @@ parseMisoRI <- function(event, strand) {
 #'  chr1 A5SS mRNA 17233 17742 . - .
 #'  chr1 A5SS exon 17233 17368 . - .
 #'  chr1 A5SS exon 17606 17742 . - .")
-#' psichomics:::parseMisoA5SS(event)
+#' parseMisoA5SS(event)
 parseMisoA5SS <- function(event) {
     validator <- c("gene", "mRNA", rep("exon", 2), "mRNA", rep("exon", 2))
     coord <- c("C1.start", "C1.end",
@@ -405,7 +405,7 @@ parseMisoA5SS <- function(event) {
 #'  chr1 A3SS mRNA 15796 16765 . - .
 #'  chr1 A3SS exon 15796 15942 . - .
 #'  chr1 A3SS exon 16607 16765 . - .")
-#' psichomics:::parseMisoA3SS(event)
+#' parseMisoA3SS(event)
 parseMisoA3SS <- function(event, plusIndex, minusIndex) {
     validator <- c("gene", "mRNA", rep("exon", 2), "mRNA", rep("exon", 2))
     coord <- c("C1.start", "C1.end",
@@ -428,7 +428,7 @@ parseMisoA3SS <- function(event, plusIndex, minusIndex) {
 #'  chr19 TandemUTR exon  10663759  10664625  .  -  .
 #'  chr19 TandemUTR mRNA  10664223  10664625  .  -  .
 #'  chr19 TandemUTR exon  10664223  10664625  .  -  .")
-#' psichomics:::parseMisoTandemUTR(event)
+#' parseMisoTandemUTR(event)
 parseMisoTandemUTR <- function(event, minusIndex) {
     validator <- c("gene", "mRNA", "exon", "mRNA", rep("exon", 1))
     coord <- c("C1.start", "C1.end",
@@ -452,7 +452,7 @@ parseMisoTandemUTR <- function(event, minusIndex) {
 #'  chr12 AFE exon 57916659 57916794  .  +  .
 #'  chr12 AFE exon 57917812 57917875  .  +  .
 #'  chr12 AFE exon 57918063 57918199  .  +  .")
-#' psichomics:::parseMisoAFE(event)
+#' parseMisoAFE(event)
 parseMisoAFE <- function(event) {
     # Filter out events that aren't valid
     validator <- c("gene", "mRNA", "exon", "mRNA", "exon")
@@ -570,7 +570,7 @@ parseMisoAFE <- function(event) {
 #'  chr6 ALE exon 30822190 30822593  .  +  .
 #'  chr6 ALE mRNA 30620579 30620982  .  +  .
 #'  chr6 ALE exon 30620579 30620982  .  +  .")
-#' psichomics:::parseMisoALE(event)
+#' parseMisoALE(event)
 parseMisoALE <- function(event) {
     # Filter out events that aren't valid
     validator <- c("gene", "mRNA", "exon", "mRNA", "exon")

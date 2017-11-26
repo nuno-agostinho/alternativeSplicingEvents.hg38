@@ -19,7 +19,7 @@ NULL
 #' event <- read.table(text =
 #' "NFYA HsaEX0042823 chr6:41046768-41046903 136 chr6:41040823,41046768-41046903,41051785 C2 0 N 0 N"
 #' )
-#' psichomics:::parseVastToolsEvent(event)
+#' parseVastToolsEvent(event)
 parseVastToolsEvent <- function(event) {
     # Create list with event attributes
     event_attrs <- data.frame("Program" = "VAST-TOOLS",
@@ -100,12 +100,12 @@ parseVastToolsEvent <- function(event) {
 #'
 #' @examples
 #' junctions <- read.table(text = "41040823 41046768 41046903 41051785")
-#' psichomics:::parseVastToolsSE(junctions)
+#' parseVastToolsSE(junctions)
 #'
 #' # these functions are vectorised!
 #' junctions <- read.table(text = "41040823 41046768 41046903 41051785
 #'                                 58864658 58864693 58864294 58864563")
-#' psichomics:::parseVastToolsSE(junctions)
+#' parseVastToolsSE(junctions)
 parseVastToolsSE <- function (junctions) {
     # Creates a data frame of parsed junctions filled with NAs
     parsed <- createJunctionsTemplate(nrow(junctions))
@@ -132,7 +132,7 @@ parseVastToolsSE <- function (junctions) {
 #' @examples
 #'
 #' junctions <- read.table(text = "58864658 58864693 58864294 58864563")
-#' psichomics:::parseVastToolsRI(junctions, strand = "+")
+#' parseVastToolsRI(junctions, strand = "+")
 parseVastToolsRI <- function (junctions, strand) {
     # Creates a data frame of parsed junctions filled with NAs
     parsed <- createJunctionsTemplate(nrow(junctions))
@@ -160,7 +160,7 @@ parseVastToolsRI <- function (junctions, strand) {
 #'     c(36276385, list(c(36277798, 36277315)), 36277974),
 #'     c(7133604, 7133377, list(c(7133474, 7133456)))
 #' )
-#' psichomics:::parseVastToolsA3SS(junctions)
+#' parseVastToolsA3SS(junctions)
 parseVastToolsA3SS <- function (junctions) {
     # Creates a data frame of parsed junctions filled with NAs
     parsed <- createJunctionsTemplate(nrow(junctions))
@@ -201,7 +201,7 @@ parseVastToolsA3SS <- function (junctions) {
 #'     c(74650610, list(c(74650654, 74650658)), 74650982),
 #'     c(list(c(49557666, 49557642), 49557746, 49557470))
 #' )
-#' psichomics:::parseVastToolsA5SS(junctions)
+#' parseVastToolsA5SS(junctions)
 parseVastToolsA5SS <- function (junctions) {
     # Creates a data frame of parsed junctions filled with NAs
     parsed <- createJunctionsTemplate(nrow(junctions))

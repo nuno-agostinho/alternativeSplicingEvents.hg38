@@ -7,7 +7,7 @@ Alternative splicing event annotation for Human (hg19)
 \description{
 Data frame containing alternative splicing events per event type. Each splicing
 event is characterised by its chromosome, strand, splice junction coordinates,
-associated gene and event identifier from the source program.
+associated gene and original event identifier from their source.
 
 The following event types are available:
 \itemize{
@@ -21,8 +21,8 @@ The following event types are available:
     \item{Tandem UTR}
 }
 
-The splicing events were compiled from the annotation files used by the
-alternative splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS (see
+Alternative splicing events were compiled from the input annotation files used
+by the splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS (see
 details).
 }
 %\usage{data("data/alternativeSplicingEvents.hg19.RDS")}
@@ -30,29 +30,32 @@ details).
 %  The format is: chr "data/alternativeSplicingEvents.hg19.RDS"
 }
 \details{
-The annotation files from MISO and VAST-TOLLS were retrieved from the links
-in "Sources". SUPPA and rMATS identify alternative splicing events and generate
-annotation files from a transcripts annotation file in GTF format.
+The compiled annotation of human alternative splicing events was based on
+annotation files used as input to MISO, VAST-TOOLS, rMATS, and SUPPA.
 
-The transcripts annotation file used was retrieved from UCSC Table Browser by
+Annotation files from MISO and VAST-TOOLS are provided in their respective
+websites (see "Sources"), whereas SUPPA and rMATS identify alternative splicing
+events and generate such annotation files based on a given isoform-centred
+transcript annotation in the GTF format.
+
+As such, the transcript annotation file was retrieved from UCSC Table Browser by
 selecting the GRCh37/hg19 assembly, "Genes and Gene Predictions" group, "UCSC
-Genes" track, "knownGene"" table for all genome in the GTF format.
-Unfortunately, this file has a bug where the "transcript_id" is the same as the
-"gene_id". To fix the transcripts' identifier from the GTF file, the exact same
-information was retrieved from UCSC Table Browser in TXT format and the
-following R script was run:
-\url{https://gist.github.com/nuno-agostinho/24a5e4926b6e08e988c0}
+Genes" track and "knownGene"" table for all genome in GTF and TXT formats, so
+gene identifiers in the GTF file (misleadingly identical to transcript
+identifiers) could be replaced with proper ones from the TXT version.
 
 After obtaining the resulting annotation files, all files were parsed to obtain
 the identifier, chromosome, strand and coordinates of each splicing event per
 event type. Then, a full outer join was performed on the annotation of the
 different programs per event type using \code{dplyr::full_join}.
 
-Note that before the outer join, some rMATS coordinates should increment one
-unit to be compared to the annotation of other files and the "chr" prefix
-present in the chromosome field of some annotation files was also removed. The
-genes were based on an annotation file containing gene symbols retrieved from
-the UCSC table browser.
+Note that before the outer join, some rMATS coordinates must be incremented by
+one to be comparable to other annotation files and the "chr" prefix in the
+chromosome field of some annotation files also must be removed.
+
+Finally, Ensembl gene symbols (retrieved from UCSC Table Browser) are assigned
+to alternative splicing events based on overlapping exon and gene coordinates.
+Splicing events not assigned to any genes are marked as "Hypothetical".
 
 For more details, check the \code{make-data.R} file.
 }
@@ -68,7 +71,7 @@ For more details, check the \code{make-data.R} file.
             \url{http://vastdb.crg.eu/libs/}}
     }
 
-    Transcripts annotation files used to generate events from SUPPA and rMATS
+    Transcript annotation files used to generate events from SUPPA and rMATS
     and annotation with gene symbols were retrieved from UCSC Table Browser
     (\url{https://genome.ucsc.edu/cgi-bin/hgTables}).
 }

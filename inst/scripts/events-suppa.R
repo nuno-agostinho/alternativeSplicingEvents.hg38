@@ -24,7 +24,7 @@
 #'
 #' @examples
 #' event <- "ENSG00000000419;A3:20:49557492-49557642:49557470-49557642:-"
-#' psichomics:::parseSuppaEvent(event)
+#' parseSuppaEvent(event)
 parseSuppaEvent <- function(event) {
     # Split event ID by semicolon and colon symbols
     id <- event
@@ -97,7 +97,7 @@ parseSuppaEvent <- function(event) {
 #' coords <- c("C1.end", "A1.start", "A1.end", "C2.start")
 #' plus  <- 1:4
 #' minus <- 1:4
-#' psichomics:::parseSuppaGeneric(junctions, strand = "+", coords, plus, minus)
+#' parseSuppaGeneric(junctions, strand = "+", coords, plus, minus)
 parseSuppaGeneric <- function(junctions, strand, coords, plus_pos, minus_pos) {
     # Creates a data frame of parsed junctions filled with NAs
     parsed <- createJunctionsTemplate(nrow(junctions))
@@ -113,7 +113,7 @@ parseSuppaGeneric <- function(junctions, strand, coords, plus_pos, minus_pos) {
 #' @examples
 #'
 #' junctions <- read.table(text = "169768099 169770024 169770112 169771762")
-#' psichomics:::parseSuppaSE(junctions, "+")
+#' parseSuppaSE(junctions, "+")
 parseSuppaSE <- function (junctions, strand) {
     coords <- c("C1.end",
                 "A1.start", "A1.end",
@@ -128,7 +128,7 @@ parseSuppaSE <- function (junctions, strand) {
 #' @examples
 #'
 #' junctions <- read.table(text = "196709749 196709922 196711005 196711181")
-#' psichomics:::parseSuppaRI(junctions, "+")
+#' parseSuppaRI(junctions, "+")
 parseSuppaRI <- function (junctions, strand) {
     coords <- c("C1.start", "C1.end",
                 "C2.start", "C2.end")
@@ -142,7 +142,7 @@ parseSuppaRI <- function (junctions, strand) {
 #'
 #' junctions <- read.table(
 #'     text = "24790610 24792494 24792800 24790610 24795476 24795797")
-#' psichomics:::parseSuppaALE(junctions, "+")
+#' parseSuppaALE(junctions, "+")
 parseSuppaALE <- function (junctions, strand) {
     coords <- c("C1.end",
                 "A1.start", "A1.end",
@@ -157,7 +157,7 @@ parseSuppaALE <- function (junctions, strand) {
 #'
 #' junctions <- read.table(
 #'     text = "169763871 169764046 169767998 169764550 169765124 169767998")
-#' psichomics:::parseSuppaAFE(junctions, "+")
+#' parseSuppaAFE(junctions, "+")
 parseSuppaAFE <- function (junctions, strand) {
     coords <- c("C1.start", "C1.end",
                 "A1.start", "A1.end",
@@ -172,7 +172,7 @@ parseSuppaAFE <- function (junctions, strand) {
 #'
 #' junctions <- read.table(
 #'     text = "202060671 202068453 202068489 202073793 202060671 202072798 202072906 202073793")
-#' psichomics:::parseSuppaMXE(junctions, "+")
+#' parseSuppaMXE(junctions, "+")
 parseSuppaMXE <- function (junctions, strand) {
     coords <- c("C1.end",
                 "A1.start", "A1.end",
@@ -187,7 +187,7 @@ parseSuppaMXE <- function (junctions, strand) {
 #' @examples
 #'
 #' junctions <- read.table(text = "169772450 169773216 169772450 169773253")
-#' psichomics:::parseSuppaA3SS(junctions, "+")
+#' parseSuppaA3SS(junctions, "+")
 parseSuppaA3SS <- function (junctions, strand) {
     coords <- c("C1.end", "A1.start", "C2.start")
     plus_pos  <- c(1, 2, 4)
@@ -199,7 +199,7 @@ parseSuppaA3SS <- function (junctions, strand) {
 #' @examples
 #'
 #' junctions <- read.table(text = "50193276 50197008 50192997 50197008")
-#' psichomics:::parseSuppaA5SS(junctions, "+")
+#' parseSuppaA5SS(junctions, "+")
 parseSuppaA5SS <- function (junctions, strand) {
     coords <- c("C1.end", "A1.end", "C2.start")
     plus_pos  <- c(3, 1, 4)

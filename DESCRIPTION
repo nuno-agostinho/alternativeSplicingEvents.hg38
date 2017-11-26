@@ -7,7 +7,7 @@ Maintainer: Nuno Agostinho <nunodanielagostinho@gmail.com>
 Description: Data frame containing alternative splicing events. The splicing events were compiled from the annotation files used by the alternative splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS.
 License: MIT + file LICENSE
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Imports:
     AnnotationHub
 Suggests:
