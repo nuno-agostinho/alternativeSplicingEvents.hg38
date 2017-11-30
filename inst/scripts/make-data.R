@@ -4,6 +4,8 @@ require(S4Vectors)
 source(system.file("scripts/events.R",
                    package="alternativeSplicingEvents.hg19"))
 
+# Obtain alternative splicing annotation -------------------------------------
+
 ## The latest release of the annotation files for the Human genome (hg19
 ## assembly) from MISO and VAST-TOOLS were retrieved from the following links:
 ##
@@ -56,6 +58,8 @@ write.table(gtf, file = outputFilename, quote = FALSE, col.names = FALSE,
 ## event type (IOE files for SUPPA and TXT for rMATS -- including novel events
 ## in the case of rMATS).
 
+# Parse alternative splicing annotation --------------------------------------
+
 ## After obtaining the resulting annotation files, all files are parsed to
 ## obtain the identifier, chromosome, strand and coordinates of each splicing
 ## event per event type. Some rMATS coordinates are incremented by one to be
@@ -106,19 +110,19 @@ join <- joinEventsPerType(events)
 # Add 1st constitutive exon's end and 2nd constituve exon's start from SUPPA or
 # rMATS to AFE and ALE events, respectively (other programs do not state these
 # coordinates)
-suppaAFE <- join$AFE$SUPPA.C2.start
-matsAFE  <- join$AFE$MATS.C2.start
-AFE.C2.start <- as.numeric( ifelse(
-    sapply(suppaAFE, is.null),
-    ifelse(sapply(matsAFE, is.null), NA, unlist(matsAFE)),
-    unlist(suppaAFE)))
+AFE.C2.start        <- join$AFE$SUPPA.C2.start
+nulls               <- sapply(AFE.C2.start, is.null)
+AFE.C2.start[nulls] <- join$AFE$MATS.C2.start[nulls]
+nulls               <- sapply(AFE.C2.start, is.null)
+AFE.C2.start[nulls] <- NA
+AFE.C2.start        <- as.numeric(AFE.C2.start)
 
-suppaALE <- join$ALE$SUPPA.C1.end
-matsALE  <- join$ALE$MATS.C1.end
-ALE.C1.end <- as.numeric( ifelse(
-    sapply(suppaALE, is.null),
-    ifelse(sapply(matsALE, is.null), NA, unlist(matsALE)),
-    unlist(suppaALE)))
+ALE.C1.end        <- join$ALE$SUPPA.C1.end
+nulls             <- sapply(ALE.C1.end, is.null)
+ALE.C1.end[nulls] <- join$ALE$MATS.C1.end[nulls]
+nulls             <- sapply(ALE.C1.end, is.null)
+ALE.C1.end[nulls] <- NA
+ALE.C1.end        <- as.numeric(ALE.C1.end)
 
 ## Organise columns
 annot <- lapply(names(join), function(i) {
@@ -129,6 +133,8 @@ names(annot) <- names(join)
 annot$AFE[["C2.start"]] <- AFE.C2.start
 annot$ALE[["C1.end"]]   <- ALE.C1.end
 events <- annot
+
+# Prepare combined annotation -----------------------------------------------
 
 ## Clean the annotation (make it ready for external use) and join everything in
 ## one organised table
@@ -154,7 +160,7 @@ names(events)[match(names(coords), names(events))] <- coords
 events$Gene <- NA
 eventId <- grep("Event.ID", names(events), value = TRUE)
 
-# Order rows by event type, chromosome and the first exons coordinates and order
+# Order rows by event type, chromosome and the first exons coordinate and order
 # columns
 ord <- order(events$`Event type`, events$Chromosome,
              events$`Constitutive exon 1 start`,
@@ -164,15 +170,10 @@ ord <- order(events$`Event type`, events$Chromosome,
 events <- events[ord, c("Event type", "Chromosome", "Strand", "Gene",
                         coords, eventId)]
 
+# Identify genes of alternative splicing events ------------------------------
+
 ## Identify the gene associated with each splicing event based on a file with
-## coordinates of transcripts and their respective gene symbol, as retrieved
-## from the UCSC table browser by selecting Human (hg19 assembly), "Gene and
-## Gene Predictions" group, "UCSC genes" track, "known genes" table for all
-## genome. In the output format, choose "selected fields from primary and
-## related tables" and name the output file "gene_coordinates.txt". After
-## clicking on "get output", choose fields "chrom", "strand", "txStart",
-## "txEnd", "exonStarts" and "exonEnds". Also, select the field "geneSymbol"
-## from the kgXref table.
+## coordinates of transcripts and their respective gene symbol
 
 getGRangesFromCoordinates <- function(filename, byExon=TRUE) {
     gene_coordinates <- read.delim(filename, header=FALSE, comment.char="#")
@@ -221,13 +222,16 @@ assignGenesFromGRange <- function(events, pos) {
             end   <- events[rows, "Alternative exon 1 end"]
         } else if (type %in% "Alternative 3' splice site") {
             start <- events[rows, "Alternative exon 1 start"]
-            end   <- events[rows, "Constitutive exon 2 start"]
+            end   <- events[rows, "Alternative exon 2 start"]
         } else if (type %in% "Alternative 5' splice site") {
             start <- events[rows, "Alternative exon 1 end"]
-            end   <- events[rows, "Constitutive exon 1 end"]
-        } else if (type %in% c("Retained intron", "Tandem UTR")) {
+            end   <- events[rows, "Alternative exon 2 end"]
+        } else if (type %in% "Retained intron") {
             start <- events[rows, "Constitutive exon 1 start"]
             end   <- events[rows, "Constitutive exon 1 end"]
+        } else if (type %in% "Tandem UTR") {
+            start <- events[rows, "Alternative exon 2 start"]
+            end   <- events[rows, "Alternative exon 2 end"]
         } else {
             stop("Undefined event type:", type)
         }
@@ -263,6 +267,14 @@ assignGenesFromGRange <- function(events, pos) {
     return(unique(events))
 }
 
+## Retrieve coordinates from the UCSC table browser by selecting Human (hg19
+## assembly), "Gene and Gene Predictions" group, "UCSC genes" track,
+## "knownGene" table for all genome. In the output format, choose "selected
+## fields from primary and related tables" and name the output file
+## "gene_coordinates.txt". After clicking on "get output", choose fields
+## "chrom", "strand", "txStart", "txEnd", "exonStarts" and "exonEnds". Also,
+## select the field "geneSymbol" from the kgXref table.
+
 # Get genes based on exon coordinates
 exon_pos <- getGRangesFromCoordinates("gene_coordinates.txt", byExon=TRUE)
 events   <- assignGenesFromGRange(events, exon_pos)
@@ -272,6 +284,8 @@ gene_pos <- getGRangesFromCoordinates("gene_coordinates.txt", byExon=FALSE)
 events[events$Gene == "Hypothetical", ] <- assignGenesFromGRange(
     events[events$Gene == "Hypothetical", ], gene_pos)
 
+# Final clean up ------------------------------------------------------------
+
 # Organise by event type and remove columns with NAs only
 events <- split(events[-1], events$`Event type`)
 for (type in names(events)) {
@@ -280,5 +294,6 @@ for (type in names(events)) {
 }
 
 # Save variable in rda
-alternativeSplicingEvents.hg19 <- events
-save(alternativeSplicingEvents.hg19, file="alternativeSplicingEvents.hg19.rda")
+alternativeSplicingEvents.hg19_V2 <- events
+save(alternativeSplicingEvents.hg19_V2,
+     file="alternativeSplicingEvents.hg19_V2.rda")

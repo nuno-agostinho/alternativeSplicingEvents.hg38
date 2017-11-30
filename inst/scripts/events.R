@@ -160,14 +160,14 @@ getEventsFromVastToolsAnnotation <- function(
 getSplicingEventCoordinates <- function(type) {
     switch(type,
            "SE"   = c("C1.end", "A1.start", "A1.end", "C2.start"),
-           "A3SS" = c("C1.end", "C2.start", "A1.start"),
-           "A5SS" = c("C1.end", "C2.start", "A1.end"),
-           "AFE"  = c("C1.start", "C1.end", "A1.start", "A1.end"),
-           "ALE"  = c("A1.start", "A1.end", "C2.start", "C2.end"),
+           "A3SS" = c("C1.end", "A2.start", "A1.start"),
+           "A5SS" = c("A2.end", "C2.start", "A1.end"),
+           "AFE"  = c("A2.start", "A2.end", "A1.start", "A1.end"),
+           "ALE"  = c("A1.start", "A1.end", "A2.start", "A2.end"),
            "RI"   = c("C1.start", "C1.end", "C2.start", "C2.end"),
            "MXE"  = c("C1.end", "A1.start", "A1.end",
                       "A2.start", "A2.end", "C2.start"),
-           "TandemUTR" = c("C1.start", "C1.end", "A1.end"))
+           "TandemUTR" = c("A2.start", "A2.end", "A1.end"))
 }
 
 #' Convert a column to numeric if possible and ignore given columns composed
@@ -289,12 +289,12 @@ writeAnnotation <- function(jointEvents, eventType,
 #' @export
 sortingCoordinates <- function(type) {
     switch(type,
-           "A3SS" = c("C2.start", "A1.start"),
-           "A5SS" = c("C1.end", "A1.end"),
-           "AFE"  = c("A1.start", "A1.end", "C1.start", "C1.end"),
-           "ALE"  = c("A1.start", "A1.end", "C2.start", "C2.end"),
+           "A3SS" = c("A2.start", "A1.start"),
+           "A5SS" = c("A2.end", "A1.end"),
+           "AFE"  = c("A1.start", "A1.end", "A2.start", "A2.end"),
+           "ALE"  = c("A1.start", "A1.end", "A2.start", "A2.end"),
            "MXE"  = c("A1.start", "A1.end", "A2.start", "A2.end"),
-           "TandemUTR" = c("A1.end", "C1.end"))
+           "TandemUTR" = c("A1.end", "A2.end"))
 }
 
 colsAsNumbers <- function(type, annotation) {
