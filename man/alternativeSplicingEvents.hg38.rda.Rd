@@ -1,8 +1,8 @@
-\name{alternativeSplicingEvents.hg19.rda}
-\alias{alternativeSplicingEvents.hg19.rda}
+\name{alternativeSplicingEvents.hg38.rda}
+\alias{alternativeSplicingEvents.hg38.rda}
 \docType{data}
 \title{
-Alternative splicing event annotation for Human (hg19)
+Alternative splicing event annotation for Human (hg38)
 }
 \description{
 Data frame containing alternative splicing events per event type. Each splicing
@@ -22,12 +22,13 @@ The following event types are available:
 }
 
 Alternative splicing events were compiled from the input annotation files used
-by the splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS (see
+by the splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS,
+followed by a lift-over of the Human annotation hg19 coordinates to hg38 (see
 details).
 }
-%\usage{data("data/alternativeSplicingEvents.hg19.RDS")}
+%\usage{data("data/alternativeSplicingEvents.hg38.RDS")}
 \format{
-%  The format is: chr "data/alternativeSplicingEvents.hg19.RDS"
+%  The format is: chr "data/alternativeSplicingEvents.hg38.RDS"
 }
 \details{
 The compiled annotation of human alternative splicing events was based on
@@ -58,6 +59,10 @@ to alternative splicing events based on overlapping exon and gene coordinates.
 Splicing events not assigned to any genes are marked as "Hypothetical".
 
 For more details, check the \code{make-data.R} file.
+
+The coordinates from the combined annotation were lifted-over from Human
+annotation hg19 to hg38 using \code{rtracklayer::liftOver} based on an UCSC
+chain file.
 }
 \source{
     \itemize{
@@ -101,7 +106,7 @@ For more details, check the \code{make-data.R} file.
 library(AnnotationHub)
 hub <- AnnotationHub()
 
-## Load the alternative splicing events for Human (hg19)
-events <- query(hub, "alternativeSplicingEvents.hg19")[[1]]
+## Load the alternative splicing events for Human (hg38)
+events <- query(hub, "alternativeSplicingEvents.hg38")[[1]]
 }
 \keyword{datasets}

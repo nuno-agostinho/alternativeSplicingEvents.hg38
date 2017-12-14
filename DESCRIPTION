@@ -1,7 +1,7 @@
-Package: alternativeSplicingEvents.hg19
+Package: alternativeSplicingEvents.hg38
 Type: Annotation package
-Title: Alternative splicing event annotation for Human (hg19)
-Version: 1.0.1
+Title: Alternative splicing event annotation for Human (hg38)
+Version: 1.0.0
 Author: Nuno Agostinho
 Maintainer: Nuno Agostinho <nunodanielagostinho@gmail.com>
 Description: Data frame containing alternative splicing events. The splicing events were compiled from the annotation files used by the alternative splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS.
@@ -15,5 +15,5 @@ Suggests:
     dplyr,
     GenomicRanges,
     S4Vectors
-URL: https://github.com/nuno-agostinho/alternativeSplicingEvents.hg19
-BugReports: https://github.com/nuno-agostinho/alternativeSplicingEvents.hg19/issues
+URL: https://github.com/nuno-agostinho/alternativeSplicingEvents.hg38
+BugReports: https://github.com/nuno-agostinho/alternativeSplicingEvents.hg38/issues

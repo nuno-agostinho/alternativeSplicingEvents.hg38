@@ -2,7 +2,7 @@ require(plyr)
 require(GenomicRanges)
 require(S4Vectors)
 source(system.file("scripts/events.R",
-                   package="alternativeSplicingEvents.hg19"))
+                   package="alternativeSplicingEvents.hg38"))
 
 # Obtain alternative splicing annotation -------------------------------------
 
@@ -284,6 +284,110 @@ gene_pos <- getGRangesFromCoordinates("gene_coordinates.txt", byExon=FALSE)
 events[events$Gene == "Hypothetical", ] <- assignGenesFromGRange(
     events[events$Gene == "Hypothetical", ], gene_pos)
 
+# Convert from hg19 to hg38 coordinates -------------------------------------
+
+## Convert hg19 to hg38 coordinates based on the UCSC chain file titled
+## "hg19ToHg38.over.chain.gz"
+require("rtracklayer")
+chain <- "hg19ToHg38.over.chain.gz"
+chain <- R.utils::gunzip(chain, remove=FALSE)
+chain <- import.chain(chain)
+
+convertToGRanges <- function(events, cols) {
+    noNAs <- !is.na(events[[cols[1]]]) | !is.na(events[[cols[2]]])
+    start <- events[[cols[1]]][noNAs]
+    end   <- events[[cols[2]]][noNAs]
+
+    # Avoid NAs
+    startNA <- is.na(start)
+    start   <- ifelse(startNA, end, start)
+    endNA   <- is.na(end)
+    end     <- ifelse(endNA, start, end)
+
+    # Start must be a value less than or equal to end
+    startLTend <- start < end
+    start <- ifelse(startLTend, start, end)
+    end   <- ifelse(startLTend, end, start)
+
+    # Convert hg19 coordinates to hg38
+    df <- data.frame(chr=paste0("chr", events$Chromosome[noNAs]),
+                     start=start, end=end, strand=events$Strand[noNAs])
+    lifted <- liftOver(makeGRangesFromDataFrame(df), chain)
+
+    # Return coordinates as they were before
+    start                      <- as.numeric(rep(NA, nrow(df)))
+    startLifted                <- start(lifted)
+    startLiftedLen             <- sapply(startLifted, length)
+    start[startLiftedLen == 1] <- as.numeric(startLifted[startLiftedLen == 1])
+    start[startLiftedLen != 1] <- NA
+
+    end                    <- as.numeric(rep(NA, nrow(df)))
+    endLifted              <- end(lifted)
+    endLiftedLen           <- sapply(endLifted, length)
+    end[endLiftedLen == 1] <- as.numeric(endLifted[endLiftedLen == 1])
+    end[endLiftedLen != 1] <- NA
+
+    start <- ifelse(startLTend, start, end)
+    end   <- ifelse(startLTend, end, start)
+    start[startNA] <- NA
+    end[endNA]     <- NA
+
+    # Replace hg19 coordinates with their respective hg38
+    events[[cols[1]]][noNAs] <- start
+    events[[cols[2]]][noNAs] <- end
+
+    # Fix chromosomes if needed
+    chr <- runValue(seqnames(lifted[startLiftedLen == 1]))
+    chr <- as.character(unlist(chr))
+    events$Chromosome[noNAs][startLiftedLen == 1] <- gsub("chr", "", chr,
+                                                          fixed=TRUE)
+    return(events)
+}
+
+constitutiveExon1 <- paste("Constitutive exon 1", c("start", "end"))
+events <- convertToGRanges(events, constitutiveExon1)
+constitutiveExon2 <- paste("Constitutive exon 2", c("start", "end"))
+events <- convertToGRanges(events, constitutiveExon2)
+alternativeExon1  <- paste("Alternative exon 1", c("start", "end"))
+events <- convertToGRanges(events, alternativeExon1)
+alternativeExon2  <- paste("Alternative exon 2", c("start", "end"))
+events <- convertToGRanges(events, alternativeExon2)
+
+# Remove events not properly converted to hg38 coordinates
+for (type in unique(events$`Event type`)) {
+    if (type == "Skipped exon") {
+        coords <- c("Constitutive exon 1 end",
+                    "Alternative exon 1 start", "Alternative exon 1 end",
+                    "Constitutive exon 2 start")
+    } else if (type == "Mutually exclusive exon") {
+        coords <- c("Constitutive exon 1 end",
+                    "Alternative exon 1 start", "Alternative exon 1 end",
+                    "Alternative exon 2 start", "Alternative exon 2 end",
+                    "Constitutive exon 2 start")
+    } else if (type %in% c("Alternative 5' splice site",
+                           "Alternative first exon")) {
+        coords <- c("Constitutive exon 1 end", "Alternative exon 1 end",
+                    "Constitutive exon 2 start")
+    } else if (type %in% c("Alternative 3' splice site",
+                           "Alternative last exon")) {
+        coords <- c("Constitutive exon 1 end",
+                    "Alternative exon 1 start", "Constitutive exon 2 start")
+    } else if (type == "Retained intron") {
+        coords <- c("Constitutive exon 1 start", "Constitutive exon 1 end",
+                    "Constitutive exon 2 start", "Constitutive exon 2 end")
+    } else if (type == "TandemUTR") {
+        coords <- c("Constitutive exon 1 start", "Constitutive exon 1 end",
+                    "Alternative exon 1 end")
+    }
+
+    print(type)
+    # Check if any coordinates are missing values
+    coordsOkay <- Reduce("&", lapply(coords, function(i) is.na(events[[i]])))
+
+    eventType <- events$`Event type` == type
+    events <- events[!(eventType & coordsOkay), ]
+}
+
 # Final clean up ------------------------------------------------------------
 
 # Organise by event type and remove columns with NAs only
@@ -294,6 +398,5 @@ for (type in names(events)) {
 }
 
 # Save variable in rda
-alternativeSplicingEvents.hg19_V2 <- events
-save(alternativeSplicingEvents.hg19_V2,
-     file="alternativeSplicingEvents.hg19_V2.rda")
+alternativeSplicingEvents.hg38 <- events
+save(alternativeSplicingEvents.hg38, file="alternativeSplicingEvents.hg38.rda")

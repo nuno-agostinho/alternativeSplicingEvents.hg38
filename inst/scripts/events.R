@@ -1,5 +1,5 @@
 insideFile <- function(...)
-    source(system.file(..., package="alternativeSplicingEvents.hg19"))
+    source(system.file(..., package="alternativeSplicingEvents.hg38"))
 
 insideFile("scripts/events-miso.R")
 insideFile("scripts/events-mats.R")
