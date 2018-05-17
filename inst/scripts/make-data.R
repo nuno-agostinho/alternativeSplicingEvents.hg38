@@ -402,5 +402,6 @@ for (type in names(events)) {
 }
 
 # Save variable in rda
-alternativeSplicingEvents.hg38 <- events
-save(alternativeSplicingEvents.hg38, file="alternativeSplicingEvents.hg38.rda")
+alternativeSplicingEvents.hg38_V2 <- events
+save(alternativeSplicingEvents.hg38_V2,
+     file="alternativeSplicingEvents.hg38_V2.rda")
