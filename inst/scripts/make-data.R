@@ -300,15 +300,17 @@ convertToGRanges <- function(events, cols) {
     end   <- events[[cols[2]]][noNAs]
 
     # Avoid NAs
-    startNA <- is.na(start)
-    start   <- ifelse(startNA, end, start)
-    endNA   <- is.na(end)
-    end     <- ifelse(endNA, start, end)
+    startNA  <- is.na(start)
+    startTmp <- ifelse(startNA, end, start)
+    endNA    <- is.na(end)
+    end      <- ifelse(endNA, start, end)
+    start    <- startTmp
 
-    # Start must be a value less than or equal to end
+    # The start position must be lower than the end position
     startLTend <- start < end
-    start <- ifelse(startLTend, start, end)
-    end   <- ifelse(startLTend, end, start)
+    startTmp <- ifelse(startLTend, start, end)
+    end      <- ifelse(startLTend, end, start)
+    start    <- startTmp
 
     # Convert hg19 coordinates to hg38
     df <- data.frame(chr=paste0("chr", events$Chromosome[noNAs]),
@@ -328,8 +330,9 @@ convertToGRanges <- function(events, cols) {
     end[endLiftedLen == 1] <- as.numeric(endLifted[endLiftedLen == 1])
     end[endLiftedLen != 1] <- NA
 
-    start <- ifelse(startLTend, start, end)
-    end   <- ifelse(startLTend, end, start)
+    startTmp <- ifelse(startLTend, start, end)
+    end      <- ifelse(startLTend, end, start)
+    start    <- startTmp
     start[startNA] <- NA
     end[endNA]     <- NA
 
