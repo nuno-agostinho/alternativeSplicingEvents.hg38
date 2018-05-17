@@ -6,7 +6,7 @@ metadata <- data.frame(
                       "junctions coordinates relevant to the type of event and",
                       "associated gene."),
     Species="Homo sapiens",
-    RDataPath="alternativeSplicingEvents.hg38/alternativeSplicingEvents.hg38.rda",
+    RDataPath="alternativeSplicingEvents.hg38/alternativeSplicingEvents.hg38_V2.rda",
     TaxonomyId=9606,
     Genome="hg38",
     Maintainer="Nuno Agostinho <nunodanielagostinho@gmail.com>",
@@ -21,7 +21,7 @@ metadata <- data.frame(
     DataProvider="MISO, VAST-TOOLS, UCSC",
     BiocVersion=package_version("3.6"),
     Coordinate_1_based=TRUE,
-    ResourceName="alternativeSplicingEvents.hg38.rda",
+    ResourceName="alternativeSplicingEvents.hg38_V2.rda",
     Tags=(c("Human, Alternative, Splicing, Events, Annotation, hg38")))
 
 write.csv(metadata, file="inst/extdata/metadata.csv", row.names=FALSE)

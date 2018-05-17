@@ -1,5 +1,5 @@
-\name{alternativeSplicingEvents.hg38.rda}
-\alias{alternativeSplicingEvents.hg38.rda}
+\name{alternativeSplicingEvents.hg38_V2.rda}
+\alias{alternativeSplicingEvents.hg38_V2.rda}
 \docType{data}
 \title{
 Alternative splicing event annotation for Human (hg38)
@@ -26,9 +26,9 @@ by the splicing quantification tools MISO, VAST-TOOLS, SUPPA and rMATS,
 followed by a lift-over of the Human annotation hg19 coordinates to hg38 (see
 details).
 }
-%\usage{data("data/alternativeSplicingEvents.hg38.RDS")}
+%\usage{data("data/alternativeSplicingEvents.hg38_V2.RDS")}
 \format{
-%  The format is: chr "data/alternativeSplicingEvents.hg38.RDS"
+%  The format is: chr "data/alternativeSplicingEvents.hg38_V2.RDS"
 }
 \details{
 The compiled annotation of human alternative splicing events was based on
@@ -107,6 +107,6 @@ library(AnnotationHub)
 hub <- AnnotationHub()
 
 ## Load the alternative splicing events for Human (hg38)
-events <- query(hub, "alternativeSplicingEvents.hg38")[[1]]
+events <- query(hub, "alternativeSplicingEvents.hg38_V2")[[1]]
 }
 \keyword{datasets}
