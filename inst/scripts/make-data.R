@@ -72,7 +72,7 @@ suppa <- getEventsFromSuppaAnnotation(folder = "suppa_annotation")
 vast  <- getEventsFromVastToolsAnnotation(folder = "Hsa/TEMPLATES")
 events <- list(miso, mats, suppa, vast)
 
-## The "chr" prefix from the chromosome field is removed
+## Remove the "chr" prefix from the chromosome field
 for (each in seq_along(events)) {
     events[[each]]$Chromosome <- gsub("chr", "", events[[each]]$Chromosome)
 }
@@ -289,8 +289,9 @@ events[events$Gene == "Hypothetical", ] <- assignGenesFromGRange(
 ## Convert hg19 to hg38 coordinates based on the UCSC chain file titled
 ## "hg19ToHg38.over.chain.gz"
 require("rtracklayer")
-chain <- "hg19ToHg38.over.chain.gz"
-chain <- R.utils::gunzip(chain, remove=FALSE)
+chain <- "hg19ToHg38.over.chain"
+if (!file.exists(chain))
+    chain <- R.utils::gunzip(paste0(chain, ".gz"), remove=FALSE)
 chain <- import.chain(chain)
 
 convertToGRanges <- function(events, cols) {
