@@ -19,10 +19,10 @@ source(system.file("scripts/events.R",
 ## files from a transcript annotation file in GTF format. The annotation file
 ## was retrieved from UCSC Table Browser (https://genome.ucsc.edu/cgi-bin/hgTables)
 ## by selecting the GRCh37/hg19 assembly, "Genes and Gene Predictions" group,
-## "UCSC Genes" track, "knownGene" table for all genome in the GTF format.
+## "Ensembl Genes" track, "ensGene" table for all genome in the GTF format.
 ## Misleadingly, the "transcript_id" column contains gene identifiers. As such,
 ## the proper transcript identifiers were retrieved from UCSC Table Browser in
-## TXT format and and the following steps were taken:
+## TXT format and the following steps were taken:
 
 annotationGTF <- "ensembl_hg19.gtf"
 annotationTXT <- "ensGene.txt"
@@ -31,8 +31,8 @@ annotationTXT <- "ensGene.txt"
 # annotation from UCSC (TXT file)
 require(data.table) # faster to load data frames
 txt <- fread(annotationTXT, data.table = FALSE)
-idTable <- txt$V13          # Save gene ID
-names(idTable) <- txt$V2    # Save transcript ID
+idTable <- txt[[13]]          # Save gene ID
+names(idTable) <- txt[[2]]    # Save transcript ID
 
 # Retrieve transcript IDs from the GTF file
 gtf <- fread(annotationGTF, data.table = FALSE)
