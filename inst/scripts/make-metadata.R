@@ -19,7 +19,7 @@ metadata <- data.frame(
     SourceType="GFF",
     SourceVersion=NA_character_,
     DataProvider="MISO, VAST-TOOLS, UCSC",
-    BiocVersion=package_version("3.6"),
+    BiocVersion=package_version("3.7"),
     Coordinate_1_based=TRUE,
     ResourceName="alternativeSplicingEvents.hg38_V2.rda",
     Tags=(c("Human, Alternative, Splicing, Events, Annotation, hg38")))
