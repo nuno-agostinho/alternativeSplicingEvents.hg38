@@ -27,9 +27,9 @@ followed by a lift-over of the Human annotation hg19 coordinates to hg38 (see
 details).
 }
 %\usage{data("data/alternativeSplicingEvents.hg38_V2.RDS")}
-\format{
+%\format{
 %  The format is: chr "data/alternativeSplicingEvents.hg38_V2.RDS"
-}
+%}
 \details{
 The compiled annotation of human alternative splicing events was based on
 annotation files used as input to MISO, VAST-TOOLS, rMATS, and SUPPA.
